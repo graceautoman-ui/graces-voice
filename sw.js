@@ -1,7 +1,7 @@
 // Scoped to this project: never read or delete another Pages project's caches.
 const BASE=new URL('./',self.location.href);
 const PREFIX='grace-voice-pages:'+BASE.pathname+':';
-const CACHE=PREFIX+'v1.1.0-pages-1';
+const CACHE=PREFIX+'v1.1.2-pages-1';
 const FILES=['./','./index.html','./app.js','./store.js','./core.js','./config-transfer.js','./binding.js','./design-system.css','./brand-icon.svg','./icon-192.png','./icon-512.png','./manifest.webmanifest','./setup.html'];
 const URLS=FILES.map(file=>new URL(file,BASE).href);
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(URLS))));
