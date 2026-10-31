@@ -1,0 +1,17 @@
+/* Version 1: no demo migration; config, draft and immutable record snapshots. */
+window.Store=(()=>{
+let db;const empty={vault:'',groups:[],revision:0};
+async function open(name="grace-voice"){db=await new Promise((resolve,reject)=>{const q=indexedDB.open(name,1);q.onupgradeneeded=()=>{q.result.createObjectStore('settings',{keyPath:'id'});const r=q.result.createObjectStore('records',{keyPath:'id'});r.createIndex('time','time');q.result.createObjectStore('drafts',{keyPath:'id'})};q.onerror=()=>reject(q.error);q.onblocked=()=>reject(Error('请关闭其他 Grace 页面后重开'));q.onsuccess=()=>{q.result.onversionchange=()=>{q.result.close();location.reload()};resolve(q.result)}})}
+function tx(stores,mode,work){return new Promise((resolve,reject)=>{const t=db.transaction(stores,mode);let result,error;t.oncomplete=()=>resolve(typeof result==='function'?result():result);t.onabort=()=>reject(error||t.error||Error('本地保存失败'));t.onerror=()=>{};const fail=e=>{error=e;t.abort()};try{result=work(t,fail)}catch(e){fail(e)}})}
+function get(store,id){return tx([store],'readonly',t=>{const q=t.objectStore(store).get(id);return()=>q.result})}
+async function load(){const [c,d,records]=await Promise.all([get('settings','config'),get('drafts','main'),tx(['records'],'readonly',t=>{const q=t.objectStore('records').getAll();return()=>q.result})]);return {...(c||structuredClone(empty)),draft:d||{body:'',gid:'',cid:''},records:records.sort((a,b)=>b.time-a.time)}}
+function draft(d){return tx(['drafts'],'readwrite',t=>t.objectStore('drafts').put({...d,id:'main'}))}
+function config(c){return tx(['settings'],'readwrite',(t,fail)=>{const s=t.objectStore('settings'),q=s.get('config');q.onsuccess=()=>{if((q.result?.revision||0)!==c.revision)return fail(Error('配置已在其他窗口更新，请重新打开本页再编辑'));s.put({id:'config',vault:c.vault,groups:c.groups,revision:c.revision+1})}})}
+function save(d,id){return tx(['settings','records','drafts'],'readwrite',(t,fail)=>{let record;const q=t.objectStore('settings').get('config');q.onsuccess=()=>{try{record=Core.record(d,q.result||empty,id);t.objectStore('records').add(record);t.objectStore('drafts').delete('main')}catch(e){fail(e)}};return()=>record})}
+function attempt(id){return tx(['settings','records'],'readwrite',(t,fail)=>{let result;const q=t.objectStore('settings').get('config');q.onsuccess=()=>{const c=q.result||empty,s=t.objectStore('records'),rq=s.get(id);rq.onsuccess=()=>{try{const r=rq.result;if(!r)throw Error('找不到本地记录');const m=Core.mapping(c,r.gid,r.cid);const uri=Core.uri(r,m);const updated={...r,status:'sent',attemptCount:r.attemptCount+1,lastAttempt:{vault:m.vault,path:m.path,time:Date.now()}};s.put(updated);result={record:updated,uri}}catch(e){fail(e)}}};return()=>result})}
+
+function saveBinding(b){return tx(['settings'],'readwrite',t=>t.objectStore('settings').put({...b,id:'binding'}))}
+function getBinding(){return get('settings','binding')}
+function resolveBinding(result){return tx(['settings'],'readwrite',(t,fail)=>{let resolved;const s=t.objectStore('settings'),q=s.get('binding');q.onsuccess=()=>{const pending=q.result,cq=s.get('config');cq.onsuccess=()=>{try{resolved=Binding.accept(pending,result,cq.result||empty);s.put(resolved)}catch(e){fail(e)}}};return()=>resolved})}
+function clearBinding(requestId){return tx(['settings'],'readwrite',t=>{const s=t.objectStore('settings'),q=s.get('binding');q.onsuccess=()=>{if(q.result?.requestId===requestId)s.delete('binding')}})}
+return {open,load,draft,config,save,attempt,saveBinding,getBinding,resolveBinding,clearBinding};})();
