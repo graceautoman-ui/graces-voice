@@ -1,0 +1,9 @@
+{
+  "id": "grace-existing-append",
+  "name": "Grace Existing Append",
+  "version": "1.1.2",
+  "minAppVersion": "1.9.10",
+  "description": "Append Grace records only to existing Markdown files.",
+  "author": "Grace’s Voice",
+  "isDesktopOnly": false
+}
