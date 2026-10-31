@@ -1,6 +1,6 @@
 # Changes
 
-## Unreleased — maintenance phase 1
+## Maintenance phase 1 — production rollout approved
 - Separate web and plugin sources; retain application and plugin version 1.1.2.
 - Add Node regression tests and web-only static artifact checks.
 - Add CI checks on development branches; Pages deployment restricted to main after successful tests.
@@ -10,3 +10,6 @@
 ## Baseline — web 1.1.2 / plugin 1.1.2
 Stable source: 28ef24031c11fbd9aa0aacbf1fec1e4fa49068ce.
 GitHub Pages callback compatibility; old site callback compatibility retained.
+
+- Update checkout/setup-node/deploy-pages to Node 24 action runtimes. Test runtime remains Node 22.
+- upload-pages-artifact v4 internally pins upload-artifact v4.6.2 (Node 20 metadata); any runner compatibility warning is an upstream dependency warning, not a data migration. Keep this documented pending upstream update.
