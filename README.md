@@ -1,28 +1,39 @@
-# Grace’s Voice GitHub Pages 1.1.2 更新
+# Grace’s Voice
 
-地址：https://graceautoman-ui.github.io/graces-voice/
+Canonical source: https://github.com/graceautoman-ui/graces-voice
+Website: https://graceautoman-ui.github.io/graces-voice/
 
-## 网页更新
+## Development
 
-将本目录内容上传 graces-voice 仓库根目录（index.html 直接位于根目录），保留 .nojekyll；Pages 使用 main / (root)。本次仅交付文件，尚未上传或发布。插件与网页必须一起更新才能完成新地址回跳。无需修改旧站网页；新插件兼容旧站。
+Use latest main and a temporary branch. Node 22 is sufficient; no package installation or framework.
 
-## Mac 插件更新
+```
+node --test tests/*.test.cjs
+node scripts/build.cjs
+```
 
-1. 解压 grace-existing-append.zip。
-2. 在 Obsidian 设置 → 第三方插件中暂时关闭 Grace Existing Append。
-3. 打开实际 Vault 的 .obsidian/plugins/grace-existing-append/，仅替换 main.js 和 manifest.json；不要替换整个 .obsidian 或笔记文件夹，不要改其他插件文件。
-4. 重新启用插件，确认显示版本 1.1.2。要求 Obsidian ≥1.9.10。
+web/ contains website sources; plugin/ contains Obsidian plugin source. tests/ uses synthetic fixtures only. dist/ is generated, ignored, and is the only Pages upload directory. versions.json tracks independent web/plugin versions. CHANGELOG records releases. Do not upload Vaults or browser backups.
 
-## iPhone 插件更新
+Current plugin download points to the immutable original repository commit, retaining installation functionality without deploying plugin code on Pages. GitHub Release packaging and PWA update notifications are phase two.
 
-- 若与 Mac 共用 iCloud Vault 和相同配置目录：Mac 更新后等待两个插件文件同步，手机重新打开 Obsidian，关闭再开启插件并核对版本 1.1.2。不能只凭笔记已同步认定插件也同步完成。
-- 若手机使用独立 Vault/配置目录：需要把 ZIP 内两个文件复制到手机实际 Vault 的 .obsidian/plugins/grace-existing-append/；不要放到 iCloud Drive 顶层或可见笔记目录。系统文件选择器可能隐藏 .obsidian，优先通过对应的 Mac iCloud Vault 更新。
-- 手机若仍显示“0 个插件”，说明安装/同步未就绪，这次网页更新不会自动安装插件；不要清理数据或重建 Vault。先核对配置目录与两个文件是否到位。
+## First activation — only after approval
 
-## 使用
+The present production site uses the existing branch-based publisher. Do not merge this branch while that publisher still serves main root: the files move to web/.
 
-联网打开更新后的网页，关闭旧标签/PWA再重新进入，不清缓存数据。分类 → 编辑二级分类 → 去 Obsidian 选择笔记 → 选好返回 → 保存。新站从 #settings 进入也不会跳回 github.io 根目录。
+After user approval: change Settings → Pages → Source to GitHub Actions; then merge this reviewed branch into main. CI tests and creates a web-only artifact, then deploys. Development branches and PRs never deploy. Switching the source itself must not be done during phase-one preparation. Confirm main has not moved before merging.
 
-若 iPhone 打开 Safari 而非原 PWA，复制返回链接，回原应用“继续配置目标笔记 → 取回选择结果”。原站和新站数据仍各自保存在对应浏览器；本次不迁移历史。
+For future work: requirement → latest code → branch → tests → user confirmation → merge → automatic Pages deployment. GitHub write authorization is required; never substitute ZIP uploads as the maintenance workflow.
 
-测试范围与验收步骤见 DEPLOYMENT-CHECKLIST.md。当前包不含私人笔记、用户数据或密钥。
+## Versions and data
+
+Application code remains 1.1.2 in phase one; cache artifact IDs include the full Git commit so each build updates static assets. This is not the phase-two update prompt. Existing workers wait for old tabs to close. No IndexedDB migration or deletion is introduced.
+
+Future web changes increment web version and visible version strings; plugin changes increment plugin manifest and plugin version only. CI checks version agreement. A rollback creates a new commit, hence a fresh cache ID even when restoring older web code.
+
+## Rollback (approval required)
+
+If CI fails before deployment the previous Pages deployment remains. For a bad released version, create a rollback branch from latest main, restore only web/ and the web version from the last stable structured-layout commit, run tests/build, review and merge after approval. Do not reset or force-push main; do not revert the entire repository to the pre-layout commit because that also removes the workflow. For the initial transition, restore the baseline website files from commit 28ef240 into web/ using a temporary checkout, exclude plugin ZIP and docs, retain the new workflow/build tooling and pin plugin download link as currently done.
+
+Record each successful release commit in CHANGELOG; retain release artifacts/commits. New build generates a distinct cache ID. Clients need network and reload/closed tabs to receive rollback. Never clear user storage. If a future schema change is incompatible, use a forward fix rather than blind downgrade. Plugin rollback is separate and requires device installation; it never follows a website rollback automatically.
+
+For stable commits using this new directory layout, `node scripts/restore-web.cjs <stable-commit-sha>` prepares a local rollback on a clean temporary branch; it refuses main and does not push or deploy. The original root-layout baseline requires the first-transition procedure above.
