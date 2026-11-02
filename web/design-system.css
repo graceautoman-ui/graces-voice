@@ -14,3 +14,19 @@
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}button:active{transform:none}}
 /* Production form and save guard, using the approved tokens. */
 .configinput{display:block;width:100%;min-height:120px;padding:var(--s4);border:1px solid var(--line);border-radius:var(--r-field);background:var(--paper);font:var(--text-section)/1.6 var(--font);overflow-wrap:anywhere}.configinput:focus{outline:2px solid var(--mint)}.saving button{pointer-events:none;opacity:.7}.modal{max-height:calc(90dvh - var(--kb,0px))}.modalback{padding-bottom:var(--kb,0px)}
+
+/* Category management: native, keyboard-accessible disclosure cards. */
+.categorycards{display:grid;gap:var(--s4);margin-top:var(--s6)}
+.categorycard{min-width:0;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden}
+.categorycard summary{display:flex;align-items:center;gap:var(--s3);min-height:64px;padding:var(--s4);cursor:pointer;list-style:none;touch-action:manipulation}
+.categorycard summary::-webkit-details-marker{display:none}
+.categorycard summary:focus-visible{outline:2px solid var(--mint-deep);outline-offset:-4px;border-radius:var(--r-card)}
+.categorycard summary:hover,.categorycard[open]>summary{background:var(--mint-soft)}
+.categoryname{flex:1;min-width:0;overflow-wrap:anywhere;font-size:var(--text-section);font-weight:600}
+.categorycount{flex:none;font-size:var(--text-meta);color:var(--muted)}
+.categorychevron{flex:none;color:var(--mint-deep);transition:transform var(--duration)}
+.categorycard[open] .categorychevron{transform:rotate(180deg)}
+.categorycontents{padding:0 var(--s4) var(--s4)}
+.categoryactions{display:flex;flex-wrap:wrap;justify-content:space-between;gap:var(--s2);padding-top:var(--s4)}
+.categorycontents .child>div{min-width:0;flex:1}.categorycontents .child>button{flex:none}
+@media(prefers-reduced-motion:reduce){.categorychevron{transition:none}}
