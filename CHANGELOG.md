@@ -1,5 +1,10 @@
 # Changes
 
+## Web 1.1.3
+- Category management shows every first-level category in independently expandable cards.
+- Defaults to collapsed on entry; retains edit, add, delete and note mapping.
+- Plugin remains 1.1.2; storage schema and protocol unchanged.
+
 ## Maintenance phase 1 — production rollout approved
 - Separate web and plugin sources; retain application and plugin version 1.1.2.
 - Add Node regression tests and web-only static artifact checks.
